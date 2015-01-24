@@ -30,5 +30,6 @@
     <string name="title_activity_actividad_detalle">ActividadDetalle</string>
     <string name="bt_anterior">Anterior</string>
     <string name="bt_siguiente">Siguiente</string>
+    <string name="action_usuario">Insertar usuario</string>
 
 </resources>

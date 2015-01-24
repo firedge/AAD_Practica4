@@ -1,7 +1,11 @@
 package com.fdgproject.firedge.aad_practica4;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -9,12 +13,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -47,6 +53,8 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         gi = new GestorInmueble(this);
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        String user = sharedPref.getString("usuario", "yo");
     }
 
     @Override
@@ -111,6 +119,28 @@ public class MainActivity extends FragmentActivity {
             i.putExtras(b);
             startActivity(i);
             return true;
+        } else if (id == R.id.action_usuario){
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(getResources().getString(R.string.action_usuario));
+            LayoutInflater inflater = LayoutInflater.from(this);
+            final View vista = inflater.inflate(R.layout.dialog_usuario, null);
+            alert.setView(vista);
+            alert.setPositiveButton(android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            EditText et_texto = (EditText) vista.findViewById(R.id.et_usuario);
+                            String txt = et_texto.getText().toString();
+                            txt=txt.trim();
+                            if(txt.length()>0) {
+                                SharedPreferences sharedPref = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("usuario", txt);
+                                editor.commit();
+                            }
+                        }
+                    });
+            alert.setNegativeButton(android.R.string.cancel,null);
+            alert.show();
         }
 
         return super.onOptionsItemSelected(item);
