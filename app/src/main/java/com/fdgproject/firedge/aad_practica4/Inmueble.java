@@ -8,6 +8,7 @@ public class Inmueble {
     private int id;
     private String localidad, direccion, tipo;
     private double precio;
+    private int subido;
 
     public Inmueble(){}
 
@@ -16,6 +17,7 @@ public class Inmueble {
         this.direccion = direccion;
         this.tipo = tipo;
         this.precio = precio;
+        this.subido = 0;
     }
 
     public Inmueble(int id, String localidad, String direccion, String tipo, double precio) {
@@ -24,6 +26,7 @@ public class Inmueble {
         this.direccion = direccion;
         this.tipo = tipo;
         this.precio = precio;
+        this.subido = 0;
     }
 
     public int getId() {
@@ -64,6 +67,14 @@ public class Inmueble {
 
     public void setPrecio(double precio) {
         this.precio = precio;
+    }
+
+    public int getSubido() {
+        return subido;
+    }
+
+    public void setSubido(int subido) {
+        this.subido = subido;
     }
 
     @Override

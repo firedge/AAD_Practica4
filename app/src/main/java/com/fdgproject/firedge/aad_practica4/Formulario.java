@@ -27,7 +27,7 @@ public class Formulario extends Activity {
         indice = b.getInt("indice");
 
         gi = new GestorInmueble(this);
-        gi.open();
+        //gi.open();
 
         inmueble = gi.getRow(indice);
 
@@ -67,7 +67,7 @@ public class Formulario extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        gi.close();
+        //gi.close();
     }
 
     public void aceptar_bt(View v){

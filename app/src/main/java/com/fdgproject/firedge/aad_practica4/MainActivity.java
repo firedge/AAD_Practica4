@@ -61,8 +61,9 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         //Cursor
-        gi.open();
-        Cursor c = gi.getCursor(null, null, null);
+        //gi.open();
+        //Cursor c = gi.getCursor(null, null, null);
+        Cursor c = gi.query();
 
         //Lista
         adp = new Adaptador(this, c);
@@ -92,7 +93,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        gi.close();
+        //gi.close();
     }
 
     /******************************  Menu principal  *********************************/
@@ -181,7 +182,8 @@ public class MainActivity extends FragmentActivity {
             Cursor cursor = (Cursor)lv.getItemAtPosition(index);
             Inmueble inm = gi.getRow(cursor);
             gi.delete(inm);
-            adp.changeCursor(gi.getCursor(null,null,null));
+            //adp.changeCursor(gi.getCursor(null,null,null));
+            adp.changeCursor(gi.query());
             return true;
         }
         return super.onContextItemSelected(item);

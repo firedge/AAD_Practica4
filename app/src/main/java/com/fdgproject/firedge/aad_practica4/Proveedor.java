@@ -13,7 +13,7 @@ import android.net.Uri;
  * Created by Firedge on 24/01/2015.
  */
 public class Proveedor extends ContentProvider {
-    public static String AUTORIDAD = "com.fdgproject.firedge.aad_practica4.proveedor";
+    public static String AUTORIDAD = "com.fdgproject.firedge.aad_practica4.proveedorinmueble";
     private Ayudante abd;
     private static final UriMatcher convierteUri2Int;
     private static final int INMUEBLES = 1, INMUEBLE_ID = 2;

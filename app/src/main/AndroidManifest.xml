@@ -27,7 +27,7 @@
 
         <provider
             android:name="com.fdgproject.firedge.aad_practica4.Proveedor"
-            android:authorities="com.fdgproject.firedge.aad_contentprovider.proveedorjugador"
+            android:authorities="com.fdgproject.firedge.aad_practica4.proveedorinmueble"
             android:enabled="true"
             android:exported="true" >
         </provider>
