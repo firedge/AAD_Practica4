@@ -30,7 +30,16 @@ public class GestorInmueble {
         return c;
     }
 
-    //getRow(Cursor c)
+    public Cursor querySincronizar(){
+        Uri uri = Contrato.TablaInmueble.CONTENT_URI;
+        String[] proyeccion = null;
+        String condicion = Contrato.TablaInmueble.SUBIDO + " = ?";
+        String[] parametros = new String[]{"0"};
+        String orden = null;
+        Cursor c = context.getContentResolver().query(uri,proyeccion,condicion,parametros,orden);
+        return c;
+    }
+
     public Inmueble getRow(Cursor c) {
         Inmueble objeto= new Inmueble();
         objeto.setId(c.getInt(0));
@@ -86,12 +95,12 @@ public class GestorInmueble {
         values.put(Contrato.TablaInmueble.SUBIDO, i.getSubido());
         String condicion = Contrato.TablaInmueble._ID+" = ?";
         String[] argumentos = new String[]{i.getId()+""};
-        int index = context.getContentResolver().update(uri, values,condicion,argumentos);
+        int index = context.getContentResolver().update(uri, values,condicion, argumentos);
     }
 
     public void delete(Inmueble i){
         Uri uri = Contrato.TablaInmueble.CONTENT_URI;
-        String where = Contrato.TablaInmueble._ID+" > ?";
+        String where = Contrato.TablaInmueble._ID+" = ?";
         String[] args = new String[]{i.getId()+""};
         int index = context.getContentResolver().delete(uri, where, args);
     }

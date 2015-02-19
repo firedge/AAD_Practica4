@@ -2,11 +2,14 @@ package com.fdgproject.firedge.aad_practica4;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.support.annotation.ColorRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -28,6 +31,7 @@ public class Adaptador extends CursorAdapter{
     public static class ViewHolder{
         public TextView tv_localidad, tv_direccion, tv_precio;
         public ImageView iv_tipo;
+        public LinearLayout ly;
     }
 
     @Override
@@ -41,6 +45,7 @@ public class Adaptador extends CursorAdapter{
             vh.tv_direccion = (TextView)view.findViewById(R.id.tv_direccion);
             vh.tv_precio = (TextView)view.findViewById(R.id.tv_precio);
             vh.iv_tipo = (ImageView)view.findViewById(R.id.iv_tipo);
+            vh.ly = (LinearLayout)view.findViewById(R.id.ly_bg);
             view.setTag(vh);
         } else {
             vh = (ViewHolder)view.getTag();
@@ -57,5 +62,10 @@ public class Adaptador extends CursorAdapter{
             vh.iv_tipo.setImageResource(R.drawable.cochera);
         else if(i.getTipo().equals(tipos[3]))
             vh.iv_tipo.setImageResource(R.drawable.trastero);
+        if(i.getSubido()!=0){
+            vh.ly.setBackgroundColor(Color.parseColor("#635891b0"));
+        } else {
+            vh.ly.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 }

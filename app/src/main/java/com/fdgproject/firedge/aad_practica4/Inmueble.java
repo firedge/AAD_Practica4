@@ -1,5 +1,7 @@
 package com.fdgproject.firedge.aad_practica4;
 
+import org.json.JSONObject;
+
 /**
  * Created by Firedge on 27/11/2014.
  */
@@ -27,6 +29,16 @@ public class Inmueble {
         this.tipo = tipo;
         this.precio = precio;
         this.subido = 0;
+    }
+
+    public String getPost(String usuario){
+        //"op1=hola&op2=pepe"
+        String s = "localidad="+this.localidad+"&" +
+            "direccion="+this.direccion+"&" +
+            "tipo=" + this.tipo+"&" +
+            "precio=" + this.precio+"&" +
+            "usuario=" + usuario;
+        return s;
     }
 
     public int getId() {

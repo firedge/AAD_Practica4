@@ -31,5 +31,8 @@
     <string name="bt_anterior">Anterior</string>
     <string name="bt_siguiente">Siguiente</string>
     <string name="action_usuario">Insertar usuario</string>
+    <string name="tv_usuario">Usuario:</string>
+    <string name="bt_upload">Sincronizar</string>
+    <string name="action_nosubir">No Subido</string>
 
 </resources>

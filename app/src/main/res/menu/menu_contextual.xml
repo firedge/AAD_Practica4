@@ -6,5 +6,7 @@
         android:orderInCategory="100" android:showAsAction="never" />
     <item android:id="@+id/action_borrar" android:title="@string/action_borrar"
         android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/action_nosubir" android:title="@string/action_nosubir"
+        android:orderInCategory="100" android:showAsAction="never" />
 
 </menu>

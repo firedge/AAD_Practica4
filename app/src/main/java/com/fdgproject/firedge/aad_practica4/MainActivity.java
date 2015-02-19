@@ -9,9 +9,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,10 +25,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,6 +66,8 @@ public class MainActivity extends FragmentActivity {
     private final int FOTO = 1, ACTIVIDADFOTOS = 2;
     private ListView lv;
     private int IDinm = 0;
+    private String user;
+    private TextView tv;
 
     /********************************************************************************************/
     /*                                                                                          */
@@ -54,7 +81,9 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
         gi = new GestorInmueble(this);
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        String user = sharedPref.getString("usuario", "yo");
+        user = sharedPref.getString("usuario", "yo");
+        tv = (TextView)findViewById(R.id.tv_usuario);
+        tv.setText(user);
     }
 
     @Override
@@ -137,6 +166,8 @@ public class MainActivity extends FragmentActivity {
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putString("usuario", txt);
                                 editor.commit();
+                                user = sharedPref.getString("usuario", "yo");
+                                tv.setText(user);
                             }
                         }
                     });
@@ -183,6 +214,13 @@ public class MainActivity extends FragmentActivity {
             Inmueble inm = gi.getRow(cursor);
             gi.delete(inm);
             //adp.changeCursor(gi.getCursor(null,null,null));
+            adp.changeCursor(gi.query());
+            return true;
+        } else if(id == R.id.action_nosubir){
+            Cursor cursor = (Cursor)lv.getItemAtPosition(index);
+            Inmueble inm = gi.getRow(cursor);
+            inm.setSubido(0);
+            gi.update(inm);
             adp.changeCursor(gi.query());
             return true;
         }
@@ -285,6 +323,126 @@ public class MainActivity extends FragmentActivity {
         if(imgFile.exists())
         {
             ivFoto.setImageURI(Uri.fromFile(imgFile));
+        }
+    }
+
+    /*********************************************************************************/
+    /*                               Sincronizar                                     */
+    /*********************************************************************************/
+
+    public void sincronizar(View v){
+        Cursor c = gi.querySincronizar();
+        while(c.moveToNext()){
+            Inmueble i = gi.getRow(c);
+
+            //TODO El codigo para subir a hibernate
+            new Upload().execute(i);
+        }
+    }
+
+    class Upload extends AsyncTask<Inmueble, Integer, String> {
+
+        String url = "http://192.168.208.106:8080/AAD_Practica3/";
+        //String url = "http://192.168.1.130:8080/AAD_Practica3/";
+        String control = "control?target=inmueble&op=insert&action=opm";
+        String controlfoto = "controlfotos?target=fotos&op=insert&action=op";
+
+        //Metodo post para subir inmueble
+        private String post(String web, String inmueble) {
+            try {
+                //Conexión post
+                URL url = new URL(web);
+                URLConnection conexion = url.openConnection();
+                conexion.setDoOutput(true);
+                //Escribir parametros
+                OutputStreamWriter out = new OutputStreamWriter(conexion.getOutputStream());
+                out.write(inmueble);
+                out.close();
+                //Leer respuesta
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        conexion.getInputStream()));
+                String linea, todo = "";
+                while ((linea = in.readLine()) != null) {
+                    todo += linea + "\n";
+                }
+                in.close();
+                return todo;
+            } catch(Exception ex){
+                return ex.toString();
+            }
+        }
+
+        //Metodo para subir fotos
+        private String postFile(String urlPeticion, String nombreParametro, String nombreArchivo, int id) {
+            String resultado="";
+            int status=0;
+            try {
+                //Conexión
+                URL url = new URL(urlPeticion);
+                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
+                conexion.setDoOutput(true);
+                conexion.setRequestMethod("POST");
+                //Archivo
+                FileBody fileBody = new FileBody(new File(nombreArchivo));
+                MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.STRICT);
+                multipartEntity.addPart(nombreParametro, fileBody);
+                multipartEntity.addPart("id", new StringBody(""+id));
+                conexion.setRequestProperty("Content-Type", multipartEntity.getContentType().getValue());
+                OutputStream out = conexion.getOutputStream();
+                try {
+                    multipartEntity.writeTo(out);
+                } catch(Exception ex){
+                    return ex.toString();
+                } finally {
+                    out.close();
+                }
+                BufferedReader in = new BufferedReader(new InputStreamReader(conexion.getInputStream()));
+                String decodedString;
+                while ((decodedString = in.readLine()) != null) {
+                    resultado+=decodedString+"\n";
+                }
+                in.close();
+                status = conexion.getResponseCode();
+            } catch (MalformedURLException ex) {
+                Log.v("ERROR", ex.toString());
+                return ex.toString();
+            } catch (IOException ex) {
+                Log.v("ERROR", ex.toString());
+                return ex.toString();
+            }
+            return resultado+"\n"+status;
+        }
+
+        @Override
+        protected String doInBackground(Inmueble... objects) {
+            Inmueble i = objects[0];
+            String s = post(url+control, i.getPost(user));
+            s = s.trim();
+            int id;
+            try {
+                id = Integer.parseInt(s);
+                i.setSubido(1);
+                gi.update(i);
+            } catch (Exception ex){
+                id = 0;
+            }
+            if(id > 0) {
+                ArrayList<String> fotos = cogerFotos(i.getId());
+                for(String ft: fotos) {
+                    s+=ft;
+                    s+=postFile(url+controlfoto, "foto", ft, id);
+                }
+            } else {
+                s+=" ERROR";
+            }
+            return s;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+            Log.v("RESULTADO", s);
+            adp.changeCursor(gi.query());
         }
     }
 }
